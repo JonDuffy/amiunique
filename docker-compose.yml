@@ -1,0 +1,30 @@
+version: '3'
+services:
+  database:
+    container_name: maria_db
+    image: mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+    environment:
+      - MYSQL_ROOT_PASSWORD=bdd
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=bdd
+      - MYSQL_DATABASE=fingerprint
+    restart:
+      always
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/mysql --user=foo --password=foo --execute \"SHOW DATABASES;\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  application:
+    container_name: amiunique
+    build:
+      dockerfile: ./application.Dockerfile
+      context: .
+    ports:
+      - "8888:8888"
+    depends_on:
+      - "database"
